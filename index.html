@@ -108,6 +108,10 @@
             </div>
 
             <div class="relative group">
+                <input type="number" id="minEventsInput" placeholder="Min Events" min="1" class="appearance-none bg-dark-800 border border-dark-border hover:border-slate-600 text-xs text-slate-200 rounded-md pl-3 pr-2 py-2 outline-none focus:ring-1 focus:ring-accent-green font-mono transition-colors w-24">
+            </div>
+
+            <div class="relative group">
                 <select id="sortSelect" class="appearance-none bg-dark-800 border border-dark-border hover:border-slate-600 text-xs text-slate-200 rounded-md pl-3 pr-8 py-2 outline-none focus:ring-1 focus:ring-accent-green cursor-pointer font-mono transition-colors">
                     <option value="totalPvi">Total Value (PVI)</option>
                     <option value="avgPvi">Quality (Avg)</option>
@@ -294,13 +298,14 @@
     const datasetMeta = document.getElementById('datasetMeta');
     const recalcBtn = document.getElementById('recalcBtn');
     const sortSelect = document.getElementById('sortSelect');
-    const searchInput = document.getElementById('searchInput'); // NEW: Search Element
+    const searchInput = document.getElementById('searchInput');
+    const minEventsInput = document.getElementById('minEventsInput'); // NEW
     
     // Summary Elements
     const summaryPlayers = document.getElementById('summaryPlayers');
     const summaryEvents = document.getElementById('summaryEvents');
-    const summaryQuality = document.getElementById('summaryQuality'); // Unused but kept for error prevention
-    const summaryQualityHint = document.getElementById('summaryQualityHint'); // Unused
+    const summaryQuality = document.getElementById('summaryQuality');
+    const summaryQualityHint = document.getElementById('summaryQualityHint');
     const summaryTopPlayer = document.getElementById('summaryTopPlayer');
     const summaryTopPvi = document.getElementById('summaryTopPvi');
     const summaryConsistentPlayer = document.getElementById('summaryConsistentPlayer');
@@ -380,9 +385,15 @@
       tbody.innerHTML = '';
       if (!currentPlayerStats) return;
 
-      // 1. Filter (Search Logic)
+      // 1. Filter (Search + Min Events Logic)
       const query = searchInput.value.toLowerCase();
-      let displayStats = currentPlayerStats.filter(p => p.name.toLowerCase().includes(query));
+      const minEvents = parseInt(minEventsInput.value) || 0;
+
+      let displayStats = currentPlayerStats.filter(p => {
+          const matchesName = p.name.toLowerCase().includes(query);
+          const matchesCount = p.events >= minEvents;
+          return matchesName && matchesCount;
+      });
 
       // 2. Sort
       displayStats = sortStats(displayStats);
@@ -590,8 +601,10 @@
         renderTable();
     });
     
-    // NEW: Search Filter
+    // Search & Min Events Filters
     searchInput.addEventListener('keyup', renderTable);
+    minEventsInput.addEventListener('keyup', renderTable);
+    minEventsInput.addEventListener('change', renderTable);
 
     // File Upload Fallback
     document.getElementById('fileInput')?.addEventListener('change', e => {
