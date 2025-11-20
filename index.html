@@ -4,9 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PVI Analyzer · Pro Edition v1.4</title>
-  <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -17,7 +15,6 @@
       }
     }
   </script>
-  <!-- SheetJS for Excel parsing -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     html { scroll-behavior:smooth; }
@@ -63,12 +60,10 @@
 </head>
 <body class="h-full bg-slate-950 text-slate-50">
   <div class="min-h-screen flex flex-col">
-    <!-- Top gradient halo -->
     <div class="pointer-events-none fixed inset-x-0 -top-40 z-0 flex justify-center overflow-hidden">
       <div class="h-72 w-[40rem] bg-gradient-to-b from-emerald-400/40 via-sky-500/40 to-transparent opacity-40 blur-3xl"></div>
     </div>
 
-    <!-- Navbar -->
     <header class="relative z-10 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-xl">
       <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -99,10 +94,8 @@
       </div>
     </header>
 
-    <!-- Main content -->
     <main class="relative z-10 flex-1">
       <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <!-- Hero / status -->
         <section class="mb-6 sm:mb-8">
           <div class="glass rounded-2xl px-4 sm:px-6 py-4 sm:py-5 shadow-xl shadow-black/40">
             <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
@@ -150,10 +143,8 @@
           </div>
         </section>
 
-        <!-- Hidden upload & controls (for your own testing, not for visitors) -->
         <section class="mb-4 sm:mb-6">
           <div class="flex flex-col gap-3">
-            <!-- Hidden file input -->
             <div class="hidden">
               <label class="font-semibold text-xs text-slate-300">Upload Excel (.xlsx)</label>
               <input
@@ -171,9 +162,7 @@
           </div>
         </section>
 
-        <!-- Layout: table + metrics -->
         <section class="grid grid-cols-1 lg:grid-cols-[minmax(0,3fr)_minmax(280px,1.4fr)] gap-4 lg:gap-6 items-start">
-          <!-- Main table -->
           <div class="card rounded-2xl p-3 sm:p-4 shadow-xl shadow-black/40">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
               <div>
@@ -210,9 +199,7 @@
             </div>
           </div>
 
-          <!-- Metrics / insights -->
           <div class="space-y-4">
-            <!-- Summary -->
             <div class="card rounded-2xl p-3 sm:p-4 shadow-xl shadow-black/40">
               <h3 class="text-sm font-semibold tracking-tight mb-2">Snapshot</h3>
               <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-300">
@@ -239,7 +226,6 @@
               </div>
             </div>
 
-            <!-- Quick filters & tags -->
             <div class="card rounded-2xl p-3 sm:p-4 shadow-xl shadow-black/40">
               <h3 class="text-sm font-semibold tracking-tight mb-2">Reading the numbers</h3>
               <ul class="space-y-1.5 text-[11px] text-slate-300">
@@ -250,7 +236,6 @@
               </ul>
             </div>
 
-            <!-- Data signature -->
             <div class="card rounded-2xl p-3 sm:p-4 shadow-xl shadow-black/40">
               <h3 class="text-sm font-semibold tracking-tight mb-2">Workbook wiring</h3>
               <p class="text-[11px] text-slate-300 mb-2">
@@ -270,7 +255,6 @@
       </div>
     </main>
 
-    <!-- Footer -->
     <footer class="relative z-10 border-t border-slate-800/80 bg-slate-950/90 backdrop-blur">
       <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] text-slate-500">
         <div class="flex items-center gap-2">
