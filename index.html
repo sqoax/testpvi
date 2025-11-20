@@ -79,7 +79,7 @@
         <div class="flex items-center gap-3">
           <div class="h-8 w-8 bg-gradient-to-br from-white to-slate-400 rounded flex items-center justify-center text-black font-bold font-mono text-lg">P</div>
           <div>
-            <h1 class="text-sm font-semibold text-white tracking-tight">PVI Analyzer <span class="text-xs text-slate-500 font-mono ml-1">PRO.v1.4</span></h1>
+            <h1 class="text-sm font-semibold text-white tracking-tight">PVI Analyzer <span class="text-xs text-slate-500 font-mono ml-1">PRO.v1.5</span></h1>
           </div>
         </div>
         
@@ -97,10 +97,16 @@
       <div class="flex flex-col sm:flex-row justify-between items-end gap-4 animate-in" style="animation-delay: 0ms;">
         <div>
             <h2 class="text-2xl font-semibold text-white">Performance Index</h2>
-            <p class="text-sm text-slate-500 mt-1">Historical value analysis sourced from <span class="font-mono text-accent-green">/repo</span>.</p>
         </div>
         
         <div class="flex items-center gap-3">
+            <div class="relative group">
+                <input type="text" id="searchInput" placeholder="Search Player..." class="bg-dark-800 border border-dark-border hover:border-slate-600 text-xs text-slate-200 rounded-md pl-3 pr-8 py-2 outline-none focus:ring-1 focus:ring-accent-green font-mono transition-colors w-40 sm:w-56">
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+                    <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                </div>
+            </div>
+
             <div class="relative group">
                 <select id="sortSelect" class="appearance-none bg-dark-800 border border-dark-border hover:border-slate-600 text-xs text-slate-200 rounded-md pl-3 pr-8 py-2 outline-none focus:ring-1 focus:ring-accent-green cursor-pointer font-mono transition-colors">
                     <option value="totalPvi">Total Value (PVI)</option>
@@ -125,15 +131,15 @@
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 animate-in" style="animation-delay: 100ms;">
         
         <div class="glass-panel p-4 rounded-xl">
-           <div class="text-[10px] uppercase tracking-wider text-slate-500 font-mono mb-1">Field Size</div>
+           <div class="text-[10px] uppercase tracking-wider text-slate-500 font-mono mb-1">Players Tracked</div>
            <div class="text-2xl font-mono font-bold text-white" id="summaryPlayers">-</div>
-           <div class="text-[10px] text-slate-500" id="summaryEvents">Waiting for data...</div>
+           <div class="text-[10px] text-slate-500">Unique Entries</div>
         </div>
 
         <div class="glass-panel p-4 rounded-xl">
-           <div class="text-[10px] uppercase tracking-wider text-slate-500 font-mono mb-1">Field Quality</div>
-           <div class="text-2xl font-mono font-bold text-white" id="summaryQuality">-</div>
-           <div class="text-[10px] text-slate-500 truncate" id="summaryQualityHint">Avg PVI Baseline</div>
+           <div class="text-[10px] uppercase tracking-wider text-slate-500 font-mono mb-1">Tournaments</div>
+           <div class="text-2xl font-mono font-bold text-white" id="summaryEvents">-</div>
+           <div class="text-[10px] text-slate-500">Total Events Logged</div>
         </div>
 
         <div class="glass-panel p-4 rounded-xl border-l-2 border-l-accent-green">
@@ -288,12 +294,13 @@
     const datasetMeta = document.getElementById('datasetMeta');
     const recalcBtn = document.getElementById('recalcBtn');
     const sortSelect = document.getElementById('sortSelect');
+    const searchInput = document.getElementById('searchInput'); // NEW: Search Element
     
     // Summary Elements
     const summaryPlayers = document.getElementById('summaryPlayers');
     const summaryEvents = document.getElementById('summaryEvents');
-    const summaryQuality = document.getElementById('summaryQuality');
-    const summaryQualityHint = document.getElementById('summaryQualityHint');
+    const summaryQuality = document.getElementById('summaryQuality'); // Unused but kept for error prevention
+    const summaryQualityHint = document.getElementById('summaryQualityHint'); // Unused
     const summaryTopPlayer = document.getElementById('summaryTopPlayer');
     const summaryTopPvi = document.getElementById('summaryTopPvi');
     const summaryConsistentPlayer = document.getElementById('summaryConsistentPlayer');
@@ -336,23 +343,12 @@
     function updateSummary(playerStats) {
       if (!playerStats || !playerStats.length) return;
 
-      const numPlayers = playerStats.length;
-      const avgEvents = mean(playerStats.map(p => p.events));
-      const avgPvi = mean(playerStats.map(p => p.avgPvi));
-
-      summaryPlayers.textContent = numPlayers;
-      summaryEvents.textContent = `Across ${avgEvents.toFixed(0)} Events`;
-
-      summaryQuality.textContent = avgPvi.toFixed(2);
-      
-      // Determine Field Quality Hint
-      let qHint = "Neutral Field";
-      if(avgPvi > 1.1) qHint = "High Value Opportunity";
-      else if(avgPvi < 0.9) qHint = "Tight Pricing";
-      summaryQualityHint.textContent = qHint;
+      // FIX: Use actual length for total counts
+      summaryPlayers.textContent = playerStats.length;
+      summaryEvents.textContent = currentEvents.length; 
 
       // Top Earner
-      const top = playerStats[0]; // Sorted by Total PVI by default
+      const top = playerStats.reduce((prev, current) => (prev.totalPvi > current.totalPvi) ? prev : current);
       summaryTopPlayer.textContent = top.name;
       summaryTopPvi.textContent = `${top.totalPvi.toFixed(2)} PVI`;
 
@@ -365,9 +361,8 @@
     }
 
     // --- SORTING ---
-    function sortPlayersInPlace() {
-      if (!currentPlayerStats) return;
-      currentPlayerStats.sort((a, b) => {
+    function sortStats(stats) {
+      return stats.sort((a, b) => {
         switch (currentSortKey) {
           case 'avgPvi': return b.avgPvi - a.avgPvi;
           case 'volatility': return b.volatility - a.volatility;
@@ -385,9 +380,14 @@
       tbody.innerHTML = '';
       if (!currentPlayerStats) return;
 
-      sortPlayersInPlace();
+      // 1. Filter (Search Logic)
+      const query = searchInput.value.toLowerCase();
+      let displayStats = currentPlayerStats.filter(p => p.name.toLowerCase().includes(query));
 
-      currentPlayerStats.forEach((p, idx) => {
+      // 2. Sort
+      displayStats = sortStats(displayStats);
+
+      displayStats.forEach((p, idx) => {
         const tr = document.createElement('tr');
         tr.className = 'data-row border-b border-dark-border/50 transition-colors cursor-pointer group';
         
@@ -411,6 +411,7 @@
         tbody.appendChild(tr);
       });
       
+      // Update Summary with FULL stats (not filtered) so header cards don't jump around
       updateSummary(currentPlayerStats);
       setStatusReady(`${currentEvents.length} Events · ${currentPlayerStats.length} Players`);
     }
@@ -528,10 +529,7 @@
             const consistencyIndex = volatility > 0 ? avgPvi / volatility : 0;
             
             // Momentum
-            const sortedPvis = [...p.pvis].sort((a,b)=>a-b); // Note: This sorts by Value, not Date. 
-            // *Correction*: Ideally we sort by Date if available, but based on data structure, 
-            // we are just calculating mathematical range difference here as proxy or simple split.
-            // Keeping original logic for consistency:
+            const sortedPvis = [...p.pvis].sort((a,b)=>a-b); 
             const last3 = sortedPvis.slice(-3);
             const prev3 = sortedPvis.slice(-6, -3);
             const last3Avg = last3.length ? mean(last3) : 0;
@@ -591,6 +589,9 @@
         currentSortKey = e.target.value;
         renderTable();
     });
+    
+    // NEW: Search Filter
+    searchInput.addEventListener('keyup', renderTable);
 
     // File Upload Fallback
     document.getElementById('fileInput')?.addEventListener('change', e => {
