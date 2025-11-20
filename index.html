@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PVI Analyzer · Pro Edition v1.4</title>
+  <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -15,6 +17,7 @@
       }
     }
   </script>
+  <!-- SheetJS for Excel parsing -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     html { scroll-behavior:smooth; }
@@ -60,10 +63,12 @@
 </head>
 <body class="h-full bg-slate-950 text-slate-50">
   <div class="min-h-screen flex flex-col">
+    <!-- Top gradient halo -->
     <div class="pointer-events-none fixed inset-x-0 -top-40 z-0 flex justify-center overflow-hidden">
       <div class="h-72 w-[40rem] bg-gradient-to-b from-emerald-400/40 via-sky-500/40 to-transparent opacity-40 blur-3xl"></div>
     </div>
 
+    <!-- Navbar -->
     <header class="relative z-10 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-xl">
       <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -94,8 +99,10 @@
       </div>
     </header>
 
+    <!-- Main content -->
     <main class="relative z-10 flex-1">
       <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <!-- Hero / status -->
         <section class="mb-6 sm:mb-8">
           <div class="glass rounded-2xl px-4 sm:px-6 py-4 sm:py-5 shadow-xl shadow-black/40">
             <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
@@ -143,8 +150,10 @@
           </div>
         </section>
 
+        <!-- Hidden upload & controls (for your own testing, not for visitors) -->
         <section class="mb-4 sm:mb-6">
           <div class="flex flex-col gap-3">
+            <!-- Hidden file input -->
             <div class="hidden">
               <label class="font-semibold text-xs text-slate-300">Upload Excel (.xlsx)</label>
               <input
@@ -162,21 +171,30 @@
           </div>
         </section>
 
+        <!-- Layout: table + metrics -->
         <section class="grid grid-cols-1 lg:grid-cols-[minmax(0,3fr)_minmax(280px,1.4fr)] gap-4 lg:gap-6 items-start">
+          <!-- Main table -->
           <div class="card rounded-2xl p-3 sm:p-4 shadow-xl shadow-black/40">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
               <div>
                 <h3 class="text-sm sm:text-base font-semibold tracking-tight">Player leaderboard</h3>
-                <p class="text-[11px] text-slate-400">Sorted by total PVI, consistent with your workbook logic.</p>
+                <p class="text-[11px] text-slate-400">Click a player to see event-by-event PVI.</p>
               </div>
-              <div class="flex flex-wrap items-center gap-2 text-[11px]">
+              <div class="flex flex-wrap items-center gap-3 text-[11px]">
+                <div class="flex items-center gap-1">
+                  <label for="sortSelect" class="text-slate-400">Sort by</label>
+                  <select id="sortSelect" class="bg-slate-900/80 border border-slate-700/80 rounded-full px-2.5 py-1 text-[11px] text-slate-100">
+                    <option value="totalPvi">Total PVI</option>
+                    <option value="avgPvi">Avg PVI</option>
+                    <option value="volatility">Volatility (StdDev)</option>
+                    <option value="consistencyIndex">Consistency (CI)</option>
+                    <option value="trendMomentum">Trend Δ (Last3 − Prev3)</option>
+                    <option value="events">Events</option>
+                  </select>
+                </div>
                 <div class="inline-flex items-center gap-1 rounded-full bg-slate-900/80 px-2.5 py-1 ring-1 ring-slate-700/80">
                   <span class="h-1.5 w-1.5 rounded-full bg-sky-400"></span>
                   <span>≥ 1.0 PVI marked</span>
-                </div>
-                <div class="inline-flex items-center gap-1 rounded-full bg-slate-900/80 px-2.5 py-1 ring-1 ring-slate-700/80">
-                  <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-                  <span>Higher consistency scored</span>
                 </div>
               </div>
             </div>
@@ -199,7 +217,9 @@
             </div>
           </div>
 
+          <!-- Metrics / insights -->
           <div class="space-y-4">
+            <!-- Summary -->
             <div class="card rounded-2xl p-3 sm:p-4 shadow-xl shadow-black/40">
               <h3 class="text-sm font-semibold tracking-tight mb-2">Snapshot</h3>
               <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-300">
@@ -226,6 +246,7 @@
               </div>
             </div>
 
+            <!-- Quick explanation -->
             <div class="card rounded-2xl p-3 sm:p-4 shadow-xl shadow-black/40">
               <h3 class="text-sm font-semibold tracking-tight mb-2">Reading the numbers</h3>
               <ul class="space-y-1.5 text-[11px] text-slate-300">
@@ -236,25 +257,24 @@
               </ul>
             </div>
 
+            <!-- Data signature -->
             <div class="card rounded-2xl p-3 sm:p-4 shadow-xl shadow-black/40">
               <h3 class="text-sm font-semibold tracking-tight mb-2">Workbook wiring</h3>
               <p class="text-[11px] text-slate-300 mb-2">
-                This analyzer trusts your underlying sheet. To update the stack:
+                To update the stack:
               </p>
               <ol class="list-decimal list-inside text-[11px] text-slate-300 space-y-1.5">
-                <li>Update <span class="font-mono text-[10px] text-emerald-300">pvi_tourneys.xlsx</span> in the repo (keeping the same filename).</li>
+                <li>Update <span class="font-mono text-[10px] text-emerald-300">pvi_tourneys.xlsx</span> in the repo (same filename).</li>
                 <li>Commit & push. GitHub Pages serves the new file automatically.</li>
                 <li>Reload this page — the analyzer will re-scan the updated workbook.</li>
               </ol>
-              <p class="mt-2 text-[10px] text-slate-500">
-                The hidden uploader is still wired: you can temporarily turn it back on if you ever want to A/B different sheets locally.
-              </p>
             </div>
           </div>
         </section>
       </div>
     </main>
 
+    <!-- Footer -->
     <footer class="relative z-10 border-t border-slate-800/80 bg-slate-950/90 backdrop-blur">
       <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] text-slate-500">
         <div class="flex items-center gap-2">
@@ -266,6 +286,53 @@
         </div>
       </div>
     </footer>
+  </div>
+
+  <!-- Player detail modal -->
+  <div id="playerModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm">
+    <div class="card max-w-lg w-full mx-4 rounded-2xl shadow-2xl shadow-black/60">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-slate-700/80">
+        <h2 id="modalPlayerName" class="text-sm sm:text-base font-semibold"></h2>
+        <button id="modalCloseBtn" class="text-slate-400 hover:text-slate-200 text-sm px-1">✕</button>
+      </div>
+      <div class="px-4 pt-3 pb-4 space-y-3 text-[11px] text-slate-100">
+        <div class="grid grid-cols-2 gap-2">
+          <div class="rounded-xl bg-emerald-500/10 px-3 py-2">
+            <div class="text-[10px] uppercase tracking-wide text-emerald-300/80">Avg PVI</div>
+            <div id="modalAvgPvi" class="text-lg font-semibold">–</div>
+          </div>
+          <div class="rounded-xl bg-indigo-500/10 px-3 py-2">
+            <div class="text-[10px] uppercase tracking-wide text-indigo-300/80">Volatility (StdDev)</div>
+            <div id="modalVolatility" class="text-lg font-semibold">–</div>
+          </div>
+          <div class="rounded-xl bg-amber-500/10 px-3 py-2">
+            <div class="text-[10px] uppercase tracking-wide text-amber-300/80">Consistency Index</div>
+            <div id="modalConsistency" class="text-lg font-semibold">–</div>
+          </div>
+          <div class="rounded-xl bg-rose-500/10 px-3 py-2">
+            <div class="text-[10px] uppercase tracking-wide text-rose-300/80">Trend Momentum</div>
+            <div id="modalTrend" class="text-lg font-semibold">–</div>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="text-[11px] font-semibold text-slate-200">Event breakdown</h3>
+            <span id="modalEventsCount" class="text-[10px] text-slate-400"></span>
+          </div>
+          <div class="max-h-64 overflow-y-auto border border-slate-800/80 rounded-xl">
+            <table class="w-full text-[11px]">
+              <thead class="bg-slate-900/80 text-slate-400">
+                <tr>
+                  <th class="text-left px-2 py-1.5">Event</th>
+                  <th class="text-right px-2 py-1.5">PVI</th>
+                </tr>
+              </thead>
+              <tbody id="modalEventsBody" class="divide-y divide-slate-800/80"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -294,6 +361,7 @@
     const datasetSubStatus = document.getElementById('datasetSubStatus');
     const datasetMeta = document.getElementById('datasetMeta');
     const recalcBtn = document.getElementById('recalcBtn');
+    const sortSelect = document.getElementById('sortSelect');
 
     function setStatusLoading(message = 'Loading workbook…') {
       datasetStatusDot.className = 'h-1.5 w-1.5 rounded-full bg-amber-400';
@@ -329,7 +397,9 @@
     const summaryConsistentPlayer = document.getElementById('summaryConsistentPlayer');
     const summaryConsistentMetric = document.getElementById('summaryConsistentMetric');
 
-    let lastPlayerStats = null;
+    let currentPlayerStats = null;
+    let currentEvents = [];
+    let currentSortKey = 'totalPvi';
 
     function updateSummary(playerStats) {
       if (!playerStats || !playerStats.length) {
@@ -344,12 +414,9 @@
         return;
       }
 
-      lastPlayerStats = playerStats;
-
       const numPlayers = playerStats.length;
       const avgEvents = mean(playerStats.map(p => p.events));
       const avgPvi = mean(playerStats.map(p => p.avgPvi));
-      const medianPvi = [...playerStats].sort((a,b)=>a.avgPvi-b.avgPvi)[Math.floor(numPlayers/2)].avgPvi;
 
       summaryPlayers.textContent = numPlayers.toString();
       summaryEvents.textContent = avgEvents
@@ -389,87 +456,35 @@
       }
     }
 
-    // --- Core processing: takes sheet (2D array) and renders table + metrics ---
-    function processSheet(sheet) {
-      if (!sheet || !sheet.length) {
-        setStatusError('Sheet is empty.');
-        updateSummary(null);
-        return;
-      }
-
-      const headerRow = sheet[0];
-      const dataRows = sheet.slice(1);
-
-      const events = [];
-      const eventColumns = [];
-
-      for (let i = 0; i < headerRow.length; i++) {
-        const header = (headerRow[i] || '').toString().trim();
-        if (header && header !== 'PVI') {
-          const pviColIdx = i + 1;
-          if (pviColIdx < headerRow.length && (headerRow[pviColIdx] || '').toString().trim() === 'PVI') {
-            events.push(header);
-            eventColumns.push({ nameCol: i, pviCol: pviColIdx });
-          }
+    function sortPlayersInPlace() {
+      if (!currentPlayerStats) return;
+      currentPlayerStats.sort((a, b) => {
+        switch (currentSortKey) {
+          case 'avgPvi':
+            return b.avgPvi - a.avgPvi;
+          case 'volatility':
+            return b.volatility - a.volatility;
+          case 'consistencyIndex':
+            return b.consistencyIndex - a.consistencyIndex;
+          case 'trendMomentum':
+            return b.trendMomentum - a.trendMomentum;
+          case 'events':
+            return b.events - a.events;
+          case 'totalPvi':
+          default:
+            return b.totalPvi - a.totalPvi;
         }
-      }
-
-      const playerMap = new Map();
-
-      for (const row of dataRows) {
-        if (!row) continue;
-        for (const evt of eventColumns) {
-          const name = (row[evt.nameCol] || '').toString().trim();
-          const pviVal = parseFloat(row[evt.pviCol]);
-          if (!name || isNaN(pviVal)) continue;
-
-          if (!playerMap.has(name)) {
-            playerMap.set(name, {
-              name,
-              pvis: [],
-            });
-          }
-          playerMap.get(name).pvis.push(pviVal);
-        }
-      }
-
-      const players = Array.from(playerMap.values());
-
-      const playerStats = players.map(p => {
-        const eventsCount = p.pvis.length;
-        const totalPvi = p.pvis.reduce((a, b) => a + b, 0);
-        const avgPvi = eventsCount ? totalPvi / eventsCount : 0;
-        const volatility = stddev(p.pvis);
-        const consistencyIndex = volatility > 0 ? avgPvi / volatility : 0;
-
-        const sortedPvis = [...p.pvis].sort((a,b)=>a-b);
-        const last3 = sortedPvis.slice(-3);
-        const prev3 = sortedPvis.slice(-6, -3);
-        const last3Avg = last3.length ? mean(last3) : 0;
-        const prev3Avg = prev3.length ? mean(prev3) : 0;
-        const trendMomentum = last3Avg - prev3Avg;
-
-        const countGte1 = p.pvis.filter(v => v >= 1).length;
-
-        return {
-          name: p.name,
-          pvis: p.pvis,
-          events: eventsCount,
-          totalPvi,
-          avgPvi,
-          volatility,
-          consistencyIndex,
-          trendMomentum,
-          countGte1
-        };
       });
+    }
 
-      playerStats.sort((a, b) => b.totalPvi - a.totalPvi);
-
+    function renderTable() {
       const tbody = document.getElementById('playersBody');
       tbody.innerHTML = '';
+      if (!currentPlayerStats) return;
 
-      playerStats.forEach((p, idx) => {
+      sortPlayersInPlace();
+
+      currentPlayerStats.forEach((p, idx) => {
         const tr = document.createElement('tr');
 
         const rowBg = idx === 0
@@ -478,7 +493,7 @@
           ? 'bg-slate-900/80 ring-1 ring-slate-700/60'
           : 'bg-slate-950/70 ring-1 ring-slate-800/70';
 
-        tr.className = rowBg + ' hover:bg-slate-900/90 transition-colors';
+        tr.className = rowBg + ' hover:bg-slate-900/90 transition-colors cursor-pointer';
 
         const tdName = document.createElement('td');
         tdName.className = 'px-2 py-2 text-left font-medium text-[11px]';
@@ -552,16 +567,153 @@
         tdEvents.textContent = p.events.toString();
         tr.appendChild(tdEvents);
 
+        // Click handler for modal
+        tr.addEventListener('click', () => openPlayerModal(p));
+
         tbody.appendChild(tr);
       });
 
-      updateSummary(playerStats);
-
-      const metaText = `${events.length} events · ${playerStats.length} players`;
+      updateSummary(currentPlayerStats);
+      const metaText = `${currentEvents.length} events · ${currentPlayerStats.length} players`;
       setStatusReady(metaText);
     }
 
-    // --- File upload handler (kept for your own testing, hidden in UI) ---
+    // Modal logic
+    const playerModal = document.getElementById('playerModal');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    const modalPlayerName = document.getElementById('modalPlayerName');
+    const modalAvgPvi = document.getElementById('modalAvgPvi');
+    const modalVolatility = document.getElementById('modalVolatility');
+    const modalConsistency = document.getElementById('modalConsistency');
+    const modalTrend = document.getElementById('modalTrend');
+    const modalEventsCount = document.getElementById('modalEventsCount');
+    const modalEventsBody = document.getElementById('modalEventsBody');
+
+    function openPlayerModal(player) {
+      modalPlayerName.textContent = player.name;
+      modalAvgPvi.textContent = formatNumber(player.avgPvi, 2);
+      modalVolatility.textContent = formatNumber(player.volatility, 2);
+      modalConsistency.textContent = formatNumber(player.consistencyIndex, 2);
+      modalTrend.textContent = formatNumber(player.trendMomentum, 2);
+      modalEventsCount.textContent = `${player.events} events`;
+
+      modalEventsBody.innerHTML = '';
+      const eventsSorted = [...player.eventsDetail].sort((a,b)=>a.event.localeCompare(b.event));
+      eventsSorted.forEach(ev => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900/80';
+        const tdEvent = document.createElement('td');
+        tdEvent.className = 'px-2 py-1.5 text-left';
+        tdEvent.textContent = ev.event;
+        const tdPvi = document.createElement('td');
+        tdPvi.className = 'px-2 py-1.5 text-right';
+        tdPvi.textContent = formatNumber(ev.pvi, 2);
+        tr.appendChild(tdEvent);
+        tr.appendChild(tdPvi);
+        modalEventsBody.appendChild(tr);
+      });
+
+      playerModal.classList.remove('hidden');
+      playerModal.classList.add('flex');
+    }
+
+    function closePlayerModal() {
+      playerModal.classList.add('hidden');
+      playerModal.classList.remove('flex');
+    }
+
+    modalCloseBtn.addEventListener('click', closePlayerModal);
+    playerModal.addEventListener('click', (e) => {
+      if (e.target === playerModal) closePlayerModal();
+    });
+
+    // --- Core processing: takes sheet (2D array) and fills currentPlayerStats ---
+    function processSheet(sheet) {
+      if (!sheet || !sheet.length) {
+        setStatusError('Sheet is empty.');
+        currentPlayerStats = null;
+        renderTable();
+        return;
+      }
+
+      const headerRow = sheet[0];
+      const dataRows = sheet.slice(1);
+
+      const events = [];
+      const eventColumns = [];
+
+      for (let i = 0; i < headerRow.length; i++) {
+        const header = (headerRow[i] || '').toString().trim();
+        if (header && header !== 'PVI') {
+          const pviColIdx = i + 1;
+          if (pviColIdx < headerRow.length && (headerRow[pviColIdx] || '').toString().trim() === 'PVI') {
+            events.push(header);
+            eventColumns.push({ nameCol: i, pviCol: pviColIdx, eventName: header });
+          }
+        }
+      }
+
+      const playerMap = new Map();
+
+      for (const row of dataRows) {
+        if (!row) continue;
+        for (const evt of eventColumns) {
+          const name = (row[evt.nameCol] || '').toString().trim();
+          const pviVal = parseFloat(row[evt.pviCol]);
+          if (!name || isNaN(pviVal)) continue;
+
+          if (!playerMap.has(name)) {
+            playerMap.set(name, {
+              name,
+              pvis: [],
+              eventsDetail: []
+            });
+          }
+          const p = playerMap.get(name);
+          p.pvis.push(pviVal);
+          p.eventsDetail.push({ event: evt.eventName, pvi: pviVal });
+        }
+      }
+
+      const players = Array.from(playerMap.values());
+
+      const playerStats = players.map(p => {
+        const eventsCount = p.pvis.length;
+        const totalPvi = p.pvis.reduce((a, b) => a + b, 0);
+        const avgPvi = eventsCount ? totalPvi / eventsCount : 0;
+        const volatility = stddev(p.pvis);
+        const consistencyIndex = volatility > 0 ? avgPvi / volatility : 0;
+
+        const sortedPvis = [...p.pvis].sort((a,b)=>a-b);
+        const last3 = sortedPvis.slice(-3);
+        const prev3 = sortedPvis.slice(-6, -3);
+        const last3Avg = last3.length ? mean(last3) : 0;
+        const prev3Avg = prev3.length ? mean(prev3) : 0;
+        const trendMomentum = last3Avg - prev3Avg;
+
+        const countGte1 = p.pvis.filter(v => v >= 1).length;
+
+        return {
+          name: p.name,
+          pvis: p.pvis,
+          events: eventsCount,
+          totalPvi,
+          avgPvi,
+          volatility,
+          consistencyIndex,
+          trendMomentum,
+          countGte1,
+          eventsDetail: p.eventsDetail
+        };
+      });
+
+      currentEvents = events;
+      currentPlayerStats = playerStats;
+      sortPlayersInPlace();
+      renderTable();
+    }
+
+    // --- File upload handler (still works, just hidden) ---
     document.getElementById('fileInput')?.addEventListener('change', e => {
       const file = e.target.files[0];
       if (!file) return;
@@ -619,6 +771,12 @@
     // Recalc button triggers re-load from repo
     recalcBtn.addEventListener('click', () => {
       loadWorkbookFromRepo();
+    });
+
+    // Sort select
+    sortSelect.addEventListener('change', (e) => {
+      currentSortKey = e.target.value;
+      renderTable();
     });
 
     // Kick off auto-load on page ready
