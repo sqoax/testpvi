@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick PVI · Putter Terminal</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { 
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            dark: { 900: '#050507', 800: '#0E0E12', border: 'rgba(255,255,255,0.08)' },
+            accent: { green: '#39FF88', blue: '#39DFFF' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .glass-panel {
+      background: rgba(14, 14, 18, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    input:focus { border-color: #39DFFF; box-shadow: 0 0 0 1px rgba(57, 223, 255, 0.2); }
+  </style>
+</head>
+
+<body class="h-full bg-dark-900 text-slate-200 flex flex-col">
+  
+  <!-- Background Grid -->
+  <div class="fixed inset-0 z-0 opacity-[0.03] pointer-events-none" style="background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px); background-size: 40px 40px;"></div>
+
+  <header class="relative z-10 p-6">
+      <a href="index.html" class="text-xs font-mono text-slate-500 hover:text-white transition-colors">← BACK TO MENU</a>
+  </header>
+
+  <main class="flex-1 flex items-center justify-center p-4 relative z-10">
+    
+    <div class="w-full max-w-md space-y-4">
+        
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-white tracking-tight">Single Event PVI</h1>
+            <p class="text-sm text-slate-500 mt-1">Quantify performance relative to closing line.</p>
+        </div>
+
+        <div class="glass-panel p-8 rounded-2xl shadow-2xl space-y-6">
+            
+            <div>
+                <label class="block text-[10px] text-slate-500 font-mono uppercase mb-1">Total Purse ($)</label>
+                <input type="number" id="purse" placeholder="e.g. 20000000" class="w-full bg-dark-800 border border-dark-border rounded p-3 text-white font-mono outline-none focus:border-accent-blue">
+            </div>
+
+            <div>
+                <label class="block text-[10px] text-slate-500 font-mono uppercase mb-1">Player Earnings ($)</label>
+                <input type="number" id="earnings" placeholder="e.g. 3600000" class="w-full bg-dark-800 border border-dark-border rounded p-3 text-white font-mono outline-none focus:border-accent-blue">
+            </div>
+
+            <div>
+                <label class="block text-[10px] text-slate-500 font-mono uppercase mb-1">Closing Odds (Fractional)</label>
+                <div class="relative">
+                    <input type="number" id="odds" placeholder="e.g. 120" class="w-full bg-dark-800 border border-dark-border rounded p-3 text-white font-mono outline-none focus:border-accent-blue">
+                    <span class="absolute right-4 top-3 text-slate-500 font-mono">/1</span>
+                </div>
+            </div>
+
+            <button onclick="calculatePVI()" class="w-full bg-accent-blue text-black font-bold py-3 rounded hover:bg-white transition-colors text-xs tracking-widest uppercase">
+                Compute PVI
+            </button>
+
+        </div>
+
+        <!-- RESULT CARD -->
+        <div id="resultCard" class="hidden glass-panel p-6 rounded-xl border border-accent-blue/20 bg-accent-blue/5 text-center animate-in">
+            <div class="text-[10px] text-accent-blue font-mono uppercase tracking-widest mb-1">Performance Value Index</div>
+            <div class="text-4xl font-bold text-white font-mono" id="pviResult">0.00</div>
+            
+            <div class="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-white/10">
+                <div>
+                    <div class="text-[10px] text-slate-500 uppercase">Rel. Winnings</div>
+                    <div class="font-mono text-slate-300" id="relWinResult">0%</div>
+                </div>
+                <div>
+                    <div class="text-[10px] text-slate-500 uppercase">Implied Prob</div>
+                    <div class="font-mono text-slate-300" id="impProbResult">0%</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    function calculatePVI() {
+        const purse = parseFloat(document.getElementById('purse').value);
+        const earnings = parseFloat(document.getElementById('earnings').value);
+        const odds = parseFloat(document.getElementById('odds').value);
+
+        if (!purse || !earnings || isNaN(odds)) return alert("Please fill all fields.");
+
+        const relativeWinnings = earnings / purse;
+        const impliedProb = 1 / (odds + 1);
+        const pvi = relativeWinnings / impliedProb;
+
+        document.getElementById('pviResult').innerText = `${pvi.toFixed(3)}x`;
+        document.getElementById('relWinResult').innerText = `${(relativeWinnings * 100).toFixed(4)}%`;
+        document.getElementById('impProbResult').innerText = `${(impliedProb * 100).toFixed(4)}%`;
+
+        document.getElementById('resultCard').classList.remove('hidden');
+    }
+  </script>
+
+</body>
+</html>
